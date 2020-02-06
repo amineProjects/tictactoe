@@ -1,32 +1,39 @@
 import Phaser from "phaser";
-import logoImg from "./assets/logo.png";
 
+let width = 600,
+  height = 600,
+  backgroundColor = "#fff";
 const config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
-  width: 800,
-  height: 600,
+  backgroundColor,
+  width,
+  height,
   scene: {
-    preload: preload,
-    create: create
+    preload,
+    create
   }
 };
 
+let board = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""]
+  ],
+  human = "X",
+  computer = "O";
+
 const game = new Phaser.Game(config);
 
-function preload() {
-  this.load.image("logo", logoImg);
-}
+function preload() {}
 
 function create() {
-  const logo = this.add.image(400, 150, "logo");
-
-  this.tweens.add({
-    targets: logo,
-    y: 450,
-    duration: 2000,
-    ease: "Power2",
-    yoyo: true,
-    loop: -1
-  });
+  let cellWidth = width / board.length;
+  let cellHeight = height / board.length;
+  console.log(cellHeight, cellWidth, width, height);
+  //create board
+  this.add
+    .grid(0, 0, width, height, cellWidth, cellHeight, 0x00b9f2)
+    .setAltFillStyle(0x016fce)
+    .setOutlineStyle()
+    .setOrigin(0, 0);
 }
