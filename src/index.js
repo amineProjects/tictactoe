@@ -24,7 +24,8 @@ let board = [
   computer = "O",
   players = { X: "player", O: "computer" },
   notAvailable = [],
-  currentPlayer = human;
+  currentPlayer = human,
+  gameOver = { isOver: false, winner: "" };
 
 const game = new Phaser.Game(config);
 
@@ -45,6 +46,7 @@ function create() {
 }
 
 const humanPlay = (cellWidth, cellHeight, scene) => (pointer, x, y) => {
+  if (gameOver.isOver) return endGame(gameOver, scene);
   if (currentPlayer === computer) return;
 
   let cellPosition = getCellPosition(x, y, cellWidth, cellHeight);
@@ -67,6 +69,7 @@ const computerPlay = (notAvailableMove, scene, cellWidth, cellHeight) => {
   notAvailable = setNotAvailable(notAvailableMove, cellPosition);
   console.log(notAvailable);
   playMove(scene, cellWidth, cellHeight, computer, cellPosition);
+  if (gameOver.isOver) return endGame(gameOver, scene);
   currentPlayer = human;
 };
 
@@ -86,6 +89,7 @@ const playMove = (scene, cellWidth, cellHeight, player, cellPosition) => {
     .setOrigin(0.5);
   board[cellPosition[1] - 1][cellPosition[0] - 1] = player;
   console.log(winCondition(board));
+  gameOver = winCondition(board, gameOver);
 };
 
 const getCellPosition = (x, y, cellWidth, cellHeight) => {
@@ -105,7 +109,7 @@ const isNotAvailable = (notAvailable, cellPosition) => {
   });
 };
 
-const winCondition = board => {
+const winCondition = (board, gameOver) => {
   console.log(board);
   for (let row = 0; row < board.length; row++) {
     if (
@@ -113,7 +117,7 @@ const winCondition = board => {
       board[row][1] === board[row][2] &&
       board[row][0] !== ""
     ) {
-      return players[board[row][0]];
+      return { isOver: true, winner: players[board[row][0]], row: "r" };
     }
   }
   for (let column = 0; column < board.length; column++) {
@@ -122,15 +126,25 @@ const winCondition = board => {
       board[1][column] === board[2][column] &&
       board[0][column] !== ""
     ) {
-      return players[board[0][column]];
+      return { isOver: true, winner: players[board[0][column]], c: "col" };
     }
   }
 
   if (
-    (board[0][0] === board[1][1] && board[1][1] === board[2][2]) ||
-    (board[0][2] === board[1][1] && board[1][1] === board[2][0])
+    (board[0][0] === board[1][1] &&
+      board[1][1] === board[2][2] &&
+      board[0][0] !== "") ||
+    (board[0][2] === board[1][1] &&
+      board[1][1] === board[2][0] &&
+      board[0][2] !== "")
   ) {
-    return players[board[1][1]];
+    return { isOver: true, winner: players[board[1][1]], d: "d" };
   }
-  return false;
+  return gameOver;
+};
+
+const endGame = (gameOver, scene) => {
+  scene.add.text(0, height / 2, `${gameOver.winner} is the winner`, {
+    fontSize: "34pt"
+  });
 };
