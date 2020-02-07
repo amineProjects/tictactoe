@@ -47,14 +47,17 @@ const humanPlay = (cellWidth, cellHeight, secne) => (pointer, x, y) => {
 
   let cellPosition = getCellPosition(x, y, cellWidth, cellHeight);
   console.log(x, y, cellPosition, notAvailable);
-  if (isNotAvailable(notAvailable, cellPosition)) return;
+  if (!isNotAvailable(notAvailable, cellPosition)) return;
   notAvailable = setNotAvailable(notAvailable, cellPosition);
   console.log(notAvailable);
-  secne.add.text(
-    (cellWidth / 2) * cellPosition[0],
-    (cellHeight / 2) * cellPosition[1],
-    human
-  );
+  secne.add
+    .text(
+      cellWidth * cellPosition[0] - cellWidth / 2,
+      cellHeight * cellPosition[1] - cellHeight / 2,
+      human,
+      { fontSize: "166px" }
+    )
+    .setOrigin(0.5);
   currentPlayer = computer;
 };
 
@@ -65,7 +68,7 @@ const setNotAvailable = (notAvailable, cellPosition) => {
   return [...notAvailable, cellPosition];
 };
 const isNotAvailable = (notAvailable, cellPosition) => {
-  if (notAvailable.length === 0) return false;
+  if (notAvailable.length === 0) return true;
   return !notAvailable.some(cp => {
     console.log(
       "inside isAvailable",
