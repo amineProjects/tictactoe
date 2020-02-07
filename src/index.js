@@ -26,14 +26,14 @@ let board = [
   notAvailable = [],
   currentPlayer = human,
   gameOver = { isOver: false, winner: "" };
+let cellWidth = width / boardLength;
+let cellHeight = height / boardLength;
 
 const game = new Phaser.Game(config);
 
 function preload() {}
 
 function create() {
-  let cellWidth = width / boardLength;
-  let cellHeight = height / boardLength;
   //create board
   let grid = this.add
     .grid(0, 0, width, height, cellWidth, cellHeight, 0x00b9f2)
@@ -144,14 +144,41 @@ const winCondition = (board, gameOver) => {
 };
 
 const endGame = (gameOver, scene, grid) => {
-  scene.add.rectangle(width / 2, height / 2, width, height, 0x000, 0.5);
-  let text = scene.add.text(
-    10,
+  let overlay = scene.add.rectangle(
+    width / 2,
     height / 2,
-    `${gameOver.winner} is the winner`,
-    {
-      fontSize: "32pt"
-    }
+    width,
+    height,
+    0x000,
+    0.7
   );
+  let text = scene.add
+      .text(width / 2 - 200, height / 2, `${gameOver.winner} is the winner`, {
+        fontSize: "32px",
+        color: "#fff"
+      })
+      .setOrigin(0, 0),
+    replay = scene.add
+      .text(width / 2 - 40, height / 2 + 100, "Replay", {
+        fontSize: "25px",
+        color: "#eee"
+      })
+      .setOrigin(0, 0);
+  let container = scene.add.container(0, 0, [overlay, text, replay]);
+  replay.setInteractive();
+  replay.on("pointerup", reset(grid, scene), scene);
   grid.off("pointerup");
+};
+
+const reset = (grid, scene) => () => {
+  console.log(scene.children.list);
+  scene.children.list = [grid];
+  board = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""]
+  ];
+  gameOver = { isOver: false, winner: "" };
+  notAvailable = [];
+  grid.on("pointerup", humanPlay(cellWidth, cellHeight, scene, grid), scene);
 };
