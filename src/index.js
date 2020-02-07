@@ -14,14 +14,15 @@ const config = {
   }
 };
 
-// let board = [
-//     ["", "", ""],
-//     ["", "", ""],
-//     ["", "", ""]
-//   ],
-let board = 3,
+let board = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""]
+  ],
+  boardLength = board.length,
   human = "X",
   computer = "O",
+  players = { X: "player", O: "computer" },
   notAvailable = [],
   currentPlayer = human;
 
@@ -30,8 +31,8 @@ const game = new Phaser.Game(config);
 function preload() {}
 
 function create() {
-  let cellWidth = width / board;
-  let cellHeight = height / board;
+  let cellWidth = width / boardLength;
+  let cellHeight = height / boardLength;
   //create board
   let grid = this.add
     .grid(0, 0, width, height, cellWidth, cellHeight, 0x00b9f2)
@@ -58,7 +59,7 @@ const humanPlay = (cellWidth, cellHeight, scene) => (pointer, x, y) => {
 
 const computerPlay = (notAvailableMove, scene, cellWidth, cellHeight) => {
   if (notAvailable.length === 9 || currentPlayer === human) return;
-  let cellPosition = nextMove(board);
+  let cellPosition = nextMove(boardLength);
 
   if (!isNotAvailable(notAvailableMove, cellPosition)) {
     return computerPlay(notAvailableMove, scene, cellWidth, cellHeight);
@@ -83,6 +84,8 @@ const playMove = (scene, cellWidth, cellHeight, player, cellPosition) => {
       { fontSize: "166px" }
     )
     .setOrigin(0.5);
+  board[cellPosition[1] - 1][cellPosition[0] - 1] = player;
+  console.log(winCondition(board));
 };
 
 const getCellPosition = (x, y, cellWidth, cellHeight) => {
@@ -100,4 +103,34 @@ const isNotAvailable = (notAvailable, cellPosition) => {
     );
     return cp[0] === cellPosition[0] && cp[1] === cellPosition[1];
   });
+};
+
+const winCondition = board => {
+  console.log(board);
+  for (let row = 0; row < board.length; row++) {
+    if (
+      board[row][0] === board[row][1] &&
+      board[row][1] === board[row][2] &&
+      board[row][0] !== ""
+    ) {
+      return players[board[row][0]];
+    }
+  }
+  for (let column = 0; column < board.length; column++) {
+    if (
+      board[0][column] === board[1][column] &&
+      board[1][column] === board[2][column] &&
+      board[0][column] !== ""
+    ) {
+      return players[board[0][column]];
+    }
+  }
+
+  if (
+    (board[0][0] === board[1][1] && board[1][1] === board[2][2]) ||
+    (board[0][2] === board[1][1] && board[1][1] === board[2][0])
+  ) {
+    return players[board[1][1]];
+  }
+  return false;
 };
