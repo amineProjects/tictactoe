@@ -41,12 +41,11 @@ function create() {
     .setOutlineStyle()
     .setOrigin(0, 0);
   grid.setInteractive();
-  grid.on("pointerup", humanPlay(cellWidth, cellHeight, this), this);
+  grid.on("pointerup", humanPlay(cellWidth, cellHeight, this, grid), this);
   console.log(grid);
 }
 
-const humanPlay = (cellWidth, cellHeight, scene) => (pointer, x, y) => {
-  if (gameOver.isOver) return endGame(gameOver, scene);
+const humanPlay = (cellWidth, cellHeight, scene, grid) => (pointer, x, y) => {
   if (currentPlayer === computer) return;
 
   let cellPosition = getCellPosition(x, y, cellWidth, cellHeight);
@@ -55,11 +54,12 @@ const humanPlay = (cellWidth, cellHeight, scene) => (pointer, x, y) => {
   notAvailable = setNotAvailable(notAvailable, cellPosition);
   console.log(notAvailable, scene);
   playMove(scene, cellWidth, cellHeight, human, cellPosition);
+  if (gameOver.isOver) return endGame(gameOver, scene, grid);
   currentPlayer = computer;
-  computerPlay(notAvailable, scene, cellWidth, cellHeight);
+  computerPlay(notAvailable, scene, cellWidth, cellHeight, grid);
 };
 
-const computerPlay = (notAvailableMove, scene, cellWidth, cellHeight) => {
+const computerPlay = (notAvailableMove, scene, cellWidth, cellHeight, grid) => {
   if (notAvailable.length === 9 || currentPlayer === human) return;
   let cellPosition = nextMove(boardLength);
 
@@ -69,7 +69,7 @@ const computerPlay = (notAvailableMove, scene, cellWidth, cellHeight) => {
   notAvailable = setNotAvailable(notAvailableMove, cellPosition);
   console.log(notAvailable);
   playMove(scene, cellWidth, cellHeight, computer, cellPosition);
-  if (gameOver.isOver) return endGame(gameOver, scene);
+  if (gameOver.isOver) return endGame(gameOver, scene, grid);
   currentPlayer = human;
 };
 
@@ -143,8 +143,15 @@ const winCondition = (board, gameOver) => {
   return gameOver;
 };
 
-const endGame = (gameOver, scene) => {
-  scene.add.text(0, height / 2, `${gameOver.winner} is the winner`, {
-    fontSize: "34pt"
-  });
+const endGame = (gameOver, scene, grid) => {
+  scene.add.rectangle(width / 2, height / 2, width, height, 0x000, 0.5);
+  let text = scene.add.text(
+    10,
+    height / 2,
+    `${gameOver.winner} is the winner`,
+    {
+      fontSize: "32pt"
+    }
+  );
+  grid.off("pointerup");
 };
